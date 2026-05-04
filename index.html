@@ -5,6 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Parts Discount Engine</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .btn-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      color: var(--text2);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all .15s;
+    }
+    .btn-nav:hover { background: var(--bg2); border-color: var(--accent); color: var(--accent); }
+  </style>
 </head>
 <body>
 
@@ -16,6 +34,7 @@
         <p class="subtitle">Garage Pricing & Deal Optimizer</p>
       </div>
     </div>
+    <a href="/catalogue.html" class="btn-nav">📦 Browse Catalogue</a>
   </div>
 
   <div id="error-banner"></div>
@@ -40,12 +59,6 @@
         </div>
       </div>
 
-      <div id="recommendations-section" class="left-recommendations">
-        <div class="section-label">🤝 Bought Together</div>
-        <div id="recommendations">
-          <p class="muted-note">Run Get Best Deal to see frequent bought together parts.</p>
-        </div>
-      </div>
     </div>
 
     <!-- RIGHT: Results -->
@@ -78,6 +91,77 @@
 
   </div>
 
+  <!-- Bought Together — full width below both panels -->
+  <div class="bought-together-outer">
+    <div id="recommendations-section" class="left-recommendations">
+      <div class="section-label">🤝 Bought Together</div>
+      <div id="recommendations">
+        <p class="muted-note">Run Get Best Deal to see frequent bought together parts.</p>
+      </div>
+    </div>
+  </div>
+
   <script src="script.js"></script>
+  <script>
+    /**
+     * If the user came from the catalogue page, pre-populate the cart
+     * from sessionStorage. We keep the session intact so going back to
+     * the catalogue page still shows the correct added state.
+     */
+    const CART_KEY = "pde_catalogue_cart";
+    (function prefillFromCatalogue() {
+      let stored;
+      try { stored = JSON.parse(sessionStorage.getItem(CART_KEY) || "null"); } catch { stored = null; }
+      if (!stored || !Object.keys(stored).length) return;
+
+      const orig = window._cataloguePrefillDone;
+      if (orig) return;
+      window._cataloguePrefillDone = true;
+
+      // Wait for data to load, then fill cart
+      const doFill = (attempts = 0) => {
+        if (window.data && window.data.length) {
+          // Remove the blank row that addItem() already added
+          document.querySelectorAll("#cart .row").forEach(r => r.remove());
+
+          Object.entries(stored).forEach(([key, qty]) => {
+            const [part, brand] = key.split("|||");
+            if (part && brand) {
+              const row = addItem(part, brand);
+              if (row) row.querySelector(".qty").value = qty;
+            }
+          });
+
+          // Keep session intact — catalogue page reads it to show added state.
+          // When user edits qty in cart rows, sync those changes back to session
+          // so catalogue stays consistent.
+          function syncCartToSession() {
+            const cart = {};
+            document.querySelectorAll("#cart .row").forEach(row => {
+              const part  = row.querySelector(".part")?.value;
+              const brand = row.querySelector(".brand")?.value;
+              const qty   = parseInt(row.querySelector(".qty")?.value || "0", 10);
+              if (part && brand && qty > 0) cart[`${part}|||${brand}`] = qty;
+            });
+            sessionStorage.setItem(CART_KEY, JSON.stringify(cart));
+          }
+
+          // Sync on any qty change or row removal
+          document.getElementById("cart").addEventListener("input",  syncCartToSession);
+          document.getElementById("cart").addEventListener("change", syncCartToSession);
+          // Also patch removeCartRow to sync after removal
+          const origRemove = window.removeCartRow;
+          window.removeCartRow = function(btn) {
+            origRemove(btn);
+            syncCartToSession();
+          };
+
+        } else if (attempts < 60) {
+          setTimeout(() => doFill(attempts + 1), 100);
+        }
+      };
+      doFill();
+    })();
+  </script>
 </body>
 </html>

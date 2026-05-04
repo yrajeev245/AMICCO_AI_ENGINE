@@ -1200,7 +1200,7 @@ def static_files(filename):
     if not os.path.isfile(fp):
         return "Not found", 404
     ext  = filename.rsplit(".", 1)[-1]
-    mime = {"css": "text/css", "js": "application/javascript"}.get(ext, "text/plain")
+    mime = {"html": "text/html", "css": "text/css", "js": "application/javascript"}.get(ext, "text/plain")
     with open(fp) as f:
         return f.read(), 200, {"Content-Type": mime}
 
@@ -1222,6 +1222,12 @@ def api_data():
             return True
     in_stock = [r for r in raw if _stock_ok(r)]
     return jsonify(in_stock)
+
+@app.route("/api/proxy_map")
+def api_proxy_map():
+    """Returns {part_name: proxy_name} from Sheet3 for catalogue filtering."""
+    proxy_map = load_proxy_map()
+    return jsonify(proxy_map)
 
 @app.route("/api/deal", methods=["POST"])
 def api_deal():

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parts Catalogue — PDE</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="catalogue.css">
+</head>
+<body>
+
+  <div class="app-header">
+    <div class="header-left">
+      <div class="logo-mark">PDE</div>
+      <div>
+        <h1>Parts Catalogue</h1>
+        <p class="subtitle">Browse &amp; add to cart</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <a href="/" class="btn-nav">← Cart</a>
+      <button class="btn-primary btn-go-cart" onclick="goToCart()">
+        🛒 <span class="cart-badge" id="cart-count">0</span>
+      </button>
+    </div>
+  </div>
+
+  <div id="error-banner"></div>
+
+  <!-- Toolbar -->
+  <div class="cat-toolbar">
+    <div class="cat-toolbar-row1">
+      <div class="search-wrap search-wrap-full">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="cat-search" placeholder="Search part or brand…" oninput="filterCatalogue()"/>
+      </div>
+    </div>
+    <div class="cat-toolbar-row2">
+      <div class="filter-chips">
+        <select id="filter-proxy" class="filter-chip-select filter-chip-proxy" onchange="filterCatalogue('proxy')">
+          <option value="">All Categories</option>
+        </select>
+        <select id="filter-brand" class="filter-chip-select" onchange="filterCatalogue('brand')">
+          <option value="">All Brands</option>
+        </select>
+        <button class="btn-clear-filters" onclick="clearFilters()" title="Clear filters">✕</button>
+      </div>
+      <div class="cat-toolbar-right">
+        <span id="cat-count-label" class="cat-count-label">Loading…</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart added strip -->
+  <div id="cart-strip" class="cart-strip" style="display:none">
+    <span id="cart-strip-label">0 parts added</span>
+    <button class="btn-primary btn-sm" onclick="goToCart()">Open Cart →</button>
+  </div>
+
+  <!-- Content -->
+  <div class="cat-wrap">
+    <div class="cat-loading" id="cat-loading">
+      <div class="spinner"></div>
+      <p>Loading catalogue…</p>
+    </div>
+    <div id="cat-grid-view" class="cat-grid" style="display:none"></div>
+  </div>
+
+  <script src="script.js"></script>
+  <script src="catalogue.js"></script>
+</body>
+</html>

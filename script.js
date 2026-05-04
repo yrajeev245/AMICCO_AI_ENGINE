@@ -2,7 +2,7 @@
  * script.js — Parts Discount Engine
  */
 
-let data = [];   // raw catalogue from /api/data
+window.data = [];   // raw catalogue — explicit global so catalogue.js can share it
 
 // Persists "added" state across re-renders so buttons stay green
 const _addedToCart = new Set();  // "part|||brand"
@@ -40,7 +40,18 @@ async function loadData() {
   }
 }
 
-loadData().then(() => addItem());
+// Only auto-init cart builder on index page; catalogue.js handles its own init
+if (document.getElementById("cart")) {
+  loadData().then(() => {
+    // If catalogue prefill data exists, skip the blank row — prefill will handle it
+    let hasPrefill = false;
+    try {
+      const stored = JSON.parse(sessionStorage.getItem("pde_catalogue_cart") || "null");
+      hasPrefill = stored && Object.keys(stored).length > 0;
+    } catch {}
+    if (!hasPrefill) addItem();
+  });
+}
 
 // ─── CATALOGUE LOOKUP ──────────────────────────────────────────────────────
 function getMaxDiscount(part, brand) {
@@ -57,16 +68,27 @@ function getMaxDiscount(part, brand) {
 function addItem(prefillPart=null, prefillBrand=null) {
   if (!data.length) { showError("Parts data not loaded yet."); return null; }
 
+  const wrapper = document.createElement("div");
+  wrapper.className = "row-wrap";
+
   const div = document.createElement("div");
   div.className = "row";
   div.innerHTML = `
     <select class="part"></select>
     <select class="brand"></select>
-    <input type="number" class="qty" value="1" min="1"/>
+    <input type="number" class="qty" value="1" min="1" oninput="warnCartQty(this)"/>
     <button class="remove-btn" onclick="removeCartRow(this)" title="Remove">✕</button>
   `;
 
-  document.getElementById("cart").insertBefore(div, document.getElementById("cart").firstChild);
+  const warn = document.createElement("div");
+  warn.className = "cart-qty-warn";
+  warn.style.display = "none";
+
+  wrapper.appendChild(div);
+  wrapper.appendChild(warn);
+
+  const cart = document.getElementById("cart");
+  cart.insertBefore(wrapper, cart.firstChild);
   populateParts(div, prefillPart, prefillBrand);
   return div;
 }
@@ -88,7 +110,10 @@ function populateParts(row, prefillPart=null, prefillBrand=null) {
     partSel.value = prefillPart;
   }
 
-  partSel.addEventListener("change", () => updateBrands(row, null));
+  partSel.addEventListener("change", () => {
+    updateBrands(row, null);
+    clearCartRowWarn(row);
+  });
   updateBrands(row, prefillBrand);
 }
 
@@ -117,7 +142,7 @@ function getCart() {
     part:  row.querySelector(".part").value,
     brand: row.querySelector(".brand").value,
     qty:   parseInt(row.querySelector(".qty").value) || 1,
-  })).filter(item => item.part && item.brand);  // skip rows with empty part/brand
+  })).filter(item => item.part && item.brand);
 
   // Merge duplicate part+brand entries by summing qty
   const merged = {};
@@ -285,7 +310,9 @@ function refreshAddedButtons() {
 }
 
 function removeCartRow(btn) {
-  btn.closest(".row")?.remove();
+  const row = btn.closest(".row");
+  const wrap = row?.closest(".row-wrap") || row;
+  wrap?.remove();
   syncAddedStateFromCart();
   refreshAddedButtons();
 }
@@ -472,19 +499,15 @@ function renderRecommendations(recos) {
     const chips = Array.from(groupedProducts.entries()).map(([part, variants]) => {
       variants.sort((a, b) => Number(a.sp || 0) - Number(b.sp || 0));
       const options = variants.map(v =>
-        `<option value="${escAttr(v.brand)}">${v.brand} - ₹${fmt(v.sp)}</option>`
+        `<option value="${escAttr(v.brand)}">${v.brand} — ₹${fmt(v.sp)}</option>`
       ).join("");
       return `
         <div class="rec-variant-row" data-part="${escAttr(part)}">
-          <div class="rec-variant-main">
-            <span class="rec-variant-label">${part}</span>
-          </div>
-          <select class="rec-brand-select" title="Brand and price" onchange="refreshAddedButtons()">${options}</select>
-          <div class="rec-add-control">
+          <span class="rec-variant-label">${part}</span>
+          <div class="rec-inline-controls">
+            <select class="rec-brand-select" title="Brand and price" onchange="refreshAddedButtons()">${options}</select>
             <input type="number" class="add-qty" value="1" min="1" title="Qty"/>
-            <button class="btn-add-reco" onclick="addGroupedRecoToCart(this)">
-              + Add
-            </button>
+            <button class="btn-add-reco" onclick="addGroupedRecoToCart(this)">+ Add</button>
           </div>
         </div>`;
     }).join("");
@@ -507,9 +530,9 @@ function renderRecommendations(recos) {
 function addGroupedRecoToCart(btn) {
   const row = btn.closest(".rec-variant-row");
   if (!row) return;
-  const part = row.dataset.part;
+  const part  = row.dataset.part;
   const brand = row.querySelector(".rec-brand-select")?.value;
-  const qty = row.querySelector(".add-qty")?.value || 1;
+  const qty   = row.querySelector(".add-qty")?.value || 1;
   addToCartFromReco(part, brand, qty, btn);
 }
 
@@ -616,6 +639,37 @@ function addToCartFromSuggestion(part, brand, qty=1, btn=null) {
 }
 
 // ─── 7. UTILS ──────────────────────────────────────────────────────────────
+function clearCartRowWarn(row) {
+  const qtyInput = row?.querySelector(".qty");
+  if (qtyInput) { qtyInput.style.borderColor = ""; qtyInput.style.boxShadow = ""; }
+  const warn = row?.closest(".row-wrap")?.querySelector(".cart-qty-warn");
+  if (warn) warn.style.display = "none";
+}
+
+function warnCartQty(input) {
+  const row   = input.closest(".row");
+  if (!row) return;
+  const part  = row.querySelector(".part")?.value;
+  const brand = row.querySelector(".brand")?.value;
+  if (!part || !brand) return;
+  const d = data.find(d => getPart(d) === part && getBrand(d) === brand);
+  const warn = row.closest(".row-wrap")?.querySelector(".cart-qty-warn");
+  if (!d) return;
+  const raw = d.Stock !== undefined ? d.Stock : (d.stock !== undefined ? d.stock : "");
+  const stockN = parseFloat(String(raw).trim());
+  if (isNaN(stockN) || stockN <= 0) return;
+  const qty = parseInt(input.value, 10) || 0;
+  if (qty > stockN) {
+    input.style.borderColor = "var(--accent)";
+    input.style.boxShadow   = "0 0 0 3px rgba(200,75,47,.15)";
+    if (warn) { warn.textContent = `⚠️ Only ${Math.round(stockN)} in stock`; warn.style.display = "block"; }
+  } else {
+    input.style.borderColor = "";
+    input.style.boxShadow   = "";
+    if (warn) warn.style.display = "none";
+  }
+}
+
 // Use data-* attributes for all onclick buttons — never inline escaping
 function escQ(s)    { return (s || "").replace(/'/g, "\\'"); }
 function escAttr(s) { return (s || "").replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }

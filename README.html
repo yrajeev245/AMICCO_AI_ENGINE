@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Parts Discount Engine README</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      word-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Parts Discount Engine README</h1>
+</header>
+<h1 id="parts-discount-engine">Parts Discount Engine</h1>
+<h2 id="what-this-app-does">What This App Does</h2>
+<p>Parts Discount Engine is a garage pricing and deal-optimization web app.</p>
+<p>It helps a sales user build a cart for a garage, apply the best safe discount, and discover the next best action to improve the deal.</p>
+<p>The app answers questions like:</p>
+<ul>
+<li>What is the final price after discount?</li>
+<li>Which parts have better discount options?</li>
+<li>Which parts unlock extra discount at higher quantity?</li>
+<li>Which parts get extra discount when the cart reaches a value threshold?</li>
+<li>Which parts are commonly bought together?</li>
+<li>What should the user add to reach a target discount?</li>
+</ul>
+<p>The UI is garage-facing, so it focuses on selling price, discount, final payable value, and quick add/switch actions. Internal margin is intentionally hidden from the visible line items.</p>
+<h2 id="main-user-flow">Main User Flow</h2>
+<ol type="1">
+<li>User opens the app.</li>
+<li>App loads the parts catalogue from Google Sheets.</li>
+<li>User builds a cart by selecting part, brand, and quantity.</li>
+<li>User optionally enters the garage’s target overall discount.</li>
+<li>User clicks <code>Get Best Deal</code>.</li>
+<li>Backend calculates item-level and cart-level pricing.</li>
+<li>UI shows Deal Summary, Line Items, Smart Recommendations, To Reach Target Discount, and Bought Together.</li>
+<li>User can add recommended parts directly with quantity controls.</li>
+</ol>
+<h2 id="project-files">Project Files</h2>
+<h3 id="app.py"><code>app.py</code></h3>
+<p>The Flask backend.</p>
+<p>It loads Google Sheet data, calculates discounts, builds recommendations, and exposes API routes used by the frontend.</p>
+<h3 id="index.html"><code>index.html</code></h3>
+<p>The page structure.</p>
+<p>It contains the app header, Build Cart section, Bought Together section, Deal Summary, Line Items, Smart Recommendations, and To Reach Target Discount.</p>
+<h3 id="script.js"><code>script.js</code></h3>
+<p>The frontend logic.</p>
+<p>It loads data, manages cart rows, sends cart data to the backend, renders the results, handles add buttons, handles brand switching, and refreshes recommendation states.</p>
+<h3 id="style.css"><code>style.css</code></h3>
+<p>The visual design.</p>
+<p>It controls layout, cards, rows, badges, buttons, dropdowns, Bought Together rows, recommendation cards, and responsive behavior.</p>
+<h3 id="requirements.txt"><code>requirements.txt</code></h3>
+<p>Python dependencies needed for deployment.</p>
+<h3 id="procfile"><code>Procfile</code></h3>
+<p>Deployment start command for platforms like Render and Railway.</p>
+<h2 id="data-source">Data Source</h2>
+<p>The app uses one Google Sheet with multiple tabs.</p>
+<h3 id="sheet1-catalogue">Sheet1: Catalogue</h3>
+<p>This is the parts master.</p>
+<p>Important columns:</p>
+<ul>
+<li><code>Part</code></li>
+<li><code>Brand</code></li>
+<li><code>SellingPrice</code></li>
+<li><code>BuyingPrice</code></li>
+<li><code>MinDiscount</code></li>
+<li><code>MinMarginPercent</code></li>
+<li><code>Stock</code></li>
+<li><code>QtyThreshold</code></li>
+<li><code>BonusDiscount_QtyThreshold</code></li>
+<li><code>MinCartValue</code></li>
+<li><code>BonusDiscount_MinCartValue</code></li>
+</ul>
+<h3 id="sheet2-order-history">Sheet2: Order History</h3>
+<p>Used for Bought Together recommendations.</p>
+<p>Important columns:</p>
+<ul>
+<li><code>Order Reference</code></li>
+<li><code>Quantity</code></li>
+<li><code>Part</code> or <code>Product Template/Name</code></li>
+</ul>
+<p>The backend supports both <code>Part</code> and <code>Product Template/Name</code>, so small column-name changes do not break recommendations.</p>
+<h3 id="sheet3-part-proxy-map">Sheet3: Part Proxy Map</h3>
+<p>Used to group similar parts into logical recommendation families.</p>
+<p>Important columns:</p>
+<ul>
+<li><code>Part</code></li>
+<li><code>PartProxy</code> or <code>Part Proxy</code></li>
+</ul>
+<p>Example:</p>
+<p>Different water paper variants can be grouped under <code>Water Paper / Regmar (Sandpaper)</code>.</p>
+<h2 id="discount-logic">Discount Logic</h2>
+<p>The backend calculates discount in layers.</p>
+<h3 id="base-discount">1. Base Discount</h3>
+<p><code>MinDiscount</code> is the starting discount for a part.</p>
+<h3 id="quantity-bonus">2. Quantity Bonus</h3>
+<p>If quantity reaches <code>QtyThreshold</code>, the app adds <code>BonusDiscount_QtyThreshold</code>.</p>
+<p>Example:</p>
+<ul>
+<li>QtyThreshold = 6</li>
+<li>BonusDiscount_QtyThreshold = 3%</li>
+<li>User buys 6 or more</li>
+<li>App gives 3% extra discount on that item</li>
+</ul>
+<h3 id="cart-value-bonus">3. Cart Value Bonus</h3>
+<p>If the total cart value reaches <code>MinCartValue</code>, eligible parts get <code>BonusDiscount_MinCartValue</code>.</p>
+<p>Important product rule:</p>
+<p>The user can add any parts to reach the threshold. The extra discount applies only to the eligible part.</p>
+<p>Example:</p>
+<ul>
+<li>Coolant Green gets +10% at cart value Rs. 10,000</li>
+<li>User adds Coolant Green</li>
+<li>User adds any other parts until cart reaches Rs. 10,000</li>
+<li>Coolant Green receives the extra discount</li>
+</ul>
+<h3 id="margin-guard">4. Margin Guard</h3>
+<p>After applying discount, the backend checks minimum margin.</p>
+<p>If discount makes margin unsafe, the backend reduces discount in 0.5% steps until margin is safe.</p>
+<p>This means the app tries to give the best possible discount without breaking margin rules.</p>
+<h2 id="main-ui-sections">Main UI Sections</h2>
+<h3 id="build-cart">Build Cart</h3>
+<p>Users choose part, brand, and quantity.</p>
+<p>The brand dropdown also shows selling price, so users can choose the correct variant.</p>
+<h3 id="deal-summary">Deal Summary</h3>
+<p>Shows:</p>
+<ul>
+<li>Total Cart Value</li>
+<li>Discount Given</li>
+<li>Value After Discount</li>
+</ul>
+<h3 id="line-items">Line Items</h3>
+<p>Shows each cart item with:</p>
+<ul>
+<li>Part</li>
+<li>Brand</li>
+<li>Quantity</li>
+<li>Unit Price</li>
+<li>Discount</li>
+<li>Final Price</li>
+</ul>
+<p>Margin is not shown because garages should not see internal profitability.</p>
+<h3 id="smart-recommendations">Smart Recommendations</h3>
+<p>Shows actions that can improve the deal:</p>
+<ul>
+<li>better brand switch options</li>
+<li>cart-value discount parts</li>
+<li>direct add buttons with quantity controls</li>
+</ul>
+<h3 id="to-reach-target-discount">To Reach Target Discount</h3>
+<p>Appears when the user enters a target discount.</p>
+<p>It shows:</p>
+<ul>
+<li>current effective discount</li>
+<li>gap to target</li>
+<li>quantity nudges</li>
+<li>brand switch nudges</li>
+<li>top 3 add-part suggestions that improve overall discount</li>
+</ul>
+<p>Quantity nudges appear only here, so the same advice is not repeated in multiple sections.</p>
+<h3 id="bought-together">Bought Together</h3>
+<p>Placed below Build Cart because it directly helps users add more relevant parts.</p>
+<p>It recommends parts based on historical order baskets.</p>
+<p>Recent UX improvement:</p>
+<p>If many variants have the same part name, the UI now shows one row with:</p>
+<p><code>Part Name | Brand + Price dropdown | Qty | Add</code></p>
+<p>This saves space and makes the recommendation easier to use.</p>
+<h2 id="how-bought-together-works">How Bought Together Works</h2>
+<p>Bought Together uses Sheet2 order history.</p>
+<p>Simple explanation:</p>
+<ol type="1">
+<li>Backend reads all order rows.</li>
+<li>It groups rows by <code>Order Reference</code>.</li>
+<li>Each order becomes a basket of parts.</li>
+<li>Parts are mapped to proxy families using Sheet3.</li>
+<li>Backend counts how often two proxy families appear together.</li>
+<li>It calculates relationship strength using co-order count, Jaccard, and Lift.</li>
+<li>Frontend shows the strongest addable parts that are not already in the cart.</li>
+</ol>
+<h3 id="co-order-count">Co-order Count</h3>
+<p>How many orders had both Part A and Part B.</p>
+<h3 id="jaccard">Jaccard</h3>
+<p>Of all orders that had either A or B, how many had both.</p>
+<p>This tells us how much the two parts overlap.</p>
+<h3 id="lift">Lift</h3>
+<p>How much more often A and B appear together compared to random chance.</p>
+<p>This helps find strong pairings, not just common items.</p>
+<h3 id="fallback-popular-add-ons">Fallback Popular Add-ons</h3>
+<p>If direct pair data is missing, the app now fills Bought Together with popular order-history add-ons instead of showing a blank section.</p>
+<p>This avoids the bad user experience of “No frequent bought-together parts found” when we still have useful popular parts to suggest.</p>
+<h2 id="add-button-behavior">Add Button Behavior</h2>
+<p>Every recommendation add button has:</p>
+<ul>
+<li>quantity input</li>
+<li><code>+ Add</code> button</li>
+</ul>
+<p>If the same part and brand already exist in cart, the app increases quantity instead of creating duplicate rows.</p>
+<p>After adding, the app automatically recalculates the cart and refreshes:</p>
+<ul>
+<li>Deal Summary</li>
+<li>Line Items</li>
+<li>Smart Recommendations</li>
+<li>To Reach Target Discount</li>
+<li>Bought Together</li>
+</ul>
+<p>If the user removes a part, the relevant recommendation button changes back from <code>Added</code> to <code>+ Add</code>.</p>
+<h2 id="important-backend-functions">Important Backend Functions</h2>
+<h3 id="fetchurl"><code>_fetch(url)</code></h3>
+<p>Loads CSV data from Google Sheets and caches it for speed.</p>
+<h3 id="normaliserow"><code>_normalise(row)</code></h3>
+<p>Converts Sheet1 column names into backend-friendly keys.</p>
+<p>Example:</p>
+<p><code>SellingPrice</code> becomes <code>selling_price</code>.</p>
+<h3 id="row_valuerow-names"><code>_row_value(row, *names)</code></h3>
+<p>Safely reads a value even if a sheet column name changes.</p>
+<p>Example:</p>
+<p>It can read either <code>PartProxy</code> or <code>Part Proxy</code>.</p>
+<h3 id="resolve_proxypart-proxy_map"><code>resolve_proxy(part, proxy_map)</code></h3>
+<p>Maps a part name to its proxy family.</p>
+<p>It first tries exact match, then normalized match.</p>
+<h3 id="compute_pricingrow-qty-cart_total_sp"><code>compute_pricing(row, qty, cart_total_sp)</code></h3>
+<p>Calculates discount and final price for one line item.</p>
+<h3 id="evaluate_cartcart-catalogue"><code>evaluate_cart(cart, catalogue)</code></h3>
+<p>Calculates the full cart.</p>
+<h3 id="build_suggestionscart-catalogue-result"><code>build_suggestions(cart, catalogue, result)</code></h3>
+<p>Builds Smart Recommendations.</p>
+<h3 id="build_target_advicecart-catalogue-result-target"><code>build_target_advice(cart, catalogue, result, target)</code></h3>
+<p>Builds To Reach Target Discount recommendations.</p>
+<h3 id="compute_reco_maptop_n"><code>compute_reco_map(top_n)</code></h3>
+<p>Builds the Bought Together recommendation matrix from order history.</p>
+<h3 id="get_cart_recoscart_items-reco_map-proxy_map-catalogue"><code>get_cart_recos(cart_items, reco_map, proxy_map, catalogue)</code></h3>
+<p>Returns the actual Bought Together recommendations for the current cart.</p>
+<h3 id="popular_proxy_recos..."><code>_popular_proxy_recos(...)</code></h3>
+<p>Fallback that returns popular add-ons if direct pair recommendations are not available.</p>
+<h2 id="important-frontend-functions">Important Frontend Functions</h2>
+<h3 id="loaddata"><code>loadData()</code></h3>
+<p>Loads catalogue data from <code>/api/data</code>.</p>
+<h3 id="additemprefillpart-prefillbrand"><code>addItem(prefillPart, prefillBrand)</code></h3>
+<p>Adds a row to Build Cart.</p>
+<h3 id="updatebrandsrow-prefillbrand"><code>updateBrands(row, prefillBrand)</code></h3>
+<p>Updates brand options when part changes.</p>
+<h3 id="getcart"><code>getCart()</code></h3>
+<p>Reads cart rows and merges duplicate part-brand rows.</p>
+<h3 id="calculatecart"><code>calculateCart()</code></h3>
+<p>Sends cart to <code>/api/deal</code> and renders the response.</p>
+<h3 id="renderrecommendationsrecos"><code>renderRecommendations(recos)</code></h3>
+<p>Renders Bought Together.</p>
+<p>It groups same part names and uses a brand-price dropdown to save space.</p>
+<h3 id="addorincrementcartpart-brand-qty-btn"><code>addOrIncrementCart(part, brand, qty, btn)</code></h3>
+<p>Adds a recommended part or increases quantity if it already exists.</p>
+<p>It also recalculates the cart after the add action.</p>
+<h3 id="switchbrandincartpart-frombrand-tobrand-btn"><code>switchBrandInCart(part, fromBrand, toBrand, btn)</code></h3>
+<p>Switches the brand in the matching cart row and recalculates the cart.</p>
+<h2 id="api-routes">API Routes</h2>
+<h3 id="section"><code>/</code></h3>
+<p>Serves the main app page.</p>
+<h3 id="apidata"><code>/api/data</code></h3>
+<p>Returns catalogue data for dropdowns.</p>
+<h3 id="apideal"><code>/api/deal</code></h3>
+<p>Main calculation API.</p>
+<p>Input:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;cart&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span> <span class="dt">&quot;part&quot;</span><span class="fu">:</span> <span class="st">&quot;Coolant Green&quot;</span><span class="fu">,</span> <span class="dt">&quot;brand&quot;</span><span class="fu">:</span> <span class="st">&quot;Golden Star&quot;</span><span class="fu">,</span> <span class="dt">&quot;qty&quot;</span><span class="fu">:</span> <span class="dv">1</span> <span class="fu">}</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;target_discount&quot;</span><span class="fu">:</span> <span class="dv">10</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>Output:</p>
+<ul>
+<li><code>result</code></li>
+<li><code>suggestions</code></li>
+<li><code>target_advice</code></li>
+<li><code>recommendations</code></li>
+</ul>
+<h3 id="apidebug_sheets"><code>/api/debug_sheets</code></h3>
+<p>Debug route to check whether Google Sheet tabs are loading correctly.</p>
+<h3 id="apireco_matrix"><code>/api/reco_matrix</code></h3>
+<p>Returns Bought Together recommendation matrix as JSON.</p>
+<h3 id="apicombinations_report"><code>/api/combinations_report</code></h3>
+<p>Returns an Excel report from backend data.</p>
+<p>The UI download button was removed, but the backend route still exists.</p>
+<h2 id="how-to-run-locally">How To Run Locally</h2>
+<p>Open terminal in the project folder:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> /Users/rajeevyadav/Documents/NEWFINALAPP</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">/opt/anaconda3/bin/python</span> <span class="at">-B</span> app.py</span></code></pre></div>
+<p>Then open:</p>
+<pre class="text"><code>http://127.0.0.1:3000</code></pre>
+<h2 id="how-to-put-this-app-live">How To Put This App Live</h2>
+<p>The simplest option is Render because this is a small Flask app and the project now has <code>requirements.txt</code> and <code>Procfile</code>.</p>
+<h3 id="option-a-deploy-on-render">Option A: Deploy On Render</h3>
+<ol type="1">
+<li>Create a GitHub repository.</li>
+<li>Upload these files:
+<ul>
+<li><code>app.py</code></li>
+<li><code>index.html</code></li>
+<li><code>script.js</code></li>
+<li><code>style.css</code></li>
+<li><code>requirements.txt</code></li>
+<li><code>Procfile</code></li>
+</ul></li>
+<li>Go to Render.</li>
+<li>Click <code>New +</code>.</li>
+<li>Choose <code>Web Service</code>.</li>
+<li>Connect your GitHub repository.</li>
+<li>Use these settings:
+<ul>
+<li>Environment: Python</li>
+<li>Build Command: <code>pip install -r requirements.txt</code></li>
+<li>Start Command: <code>gunicorn app:app</code></li>
+</ul></li>
+<li>Deploy.</li>
+<li>Render will give you a public URL.</li>
+<li>Share that URL with users.</li>
+</ol>
+<h3 id="option-b-deploy-on-railway">Option B: Deploy On Railway</h3>
+<ol type="1">
+<li>Create a GitHub repository with the same project files.</li>
+<li>Go to Railway.</li>
+<li>Create a new project from GitHub.</li>
+<li>Railway should detect Python.</li>
+<li>Set start command to:</li>
+</ol>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gunicorn</span> app:app</span></code></pre></div>
+<ol start="6" type="1">
+<li>Deploy and share the generated public URL.</li>
+</ol>
+<h3 id="option-c-deploy-on-pythonanywhere">Option C: Deploy On PythonAnywhere</h3>
+<p>PythonAnywhere is also good for Flask, but setup is more manual.</p>
+<p>Use it if you want a simpler Python hosting environment and are comfortable configuring WSGI.</p>
+<h2 id="google-sheet-requirements-for-live-app">Google Sheet Requirements For Live App</h2>
+<p>For the live app to work, the Google Sheet must be reachable by the server.</p>
+<p>Best approach:</p>
+<ol type="1">
+<li>Keep the Google Sheet as <code>Anyone with the link can view</code>, or publish CSV access.</li>
+<li>Do not put private cost-sensitive data in a public sheet unless access is controlled.</li>
+<li>Keep Sheet tab GIDs stable.</li>
+<li>If you duplicate or recreate tabs, update the GIDs in <code>app.py</code>.</li>
+</ol>
+<p>Current code expects:</p>
+<ul>
+<li>Sheet1 for catalogue</li>
+<li>Sheet2 for order history</li>
+<li>Sheet3 for proxy map</li>
+</ul>
+<h2 id="live-app-checklist-before-sharing">Live-App Checklist Before Sharing</h2>
+<ul>
+<li>Confirm <code>/api/data</code> loads parts.</li>
+<li>Confirm <code>/api/debug_sheets</code> shows rows for Sheet1, Sheet2, and Sheet3.</li>
+<li>Add a test cart and click <code>Get Best Deal</code>.</li>
+<li>Confirm Deal Summary appears.</li>
+<li>Confirm Bought Together has recommendations.</li>
+<li>Confirm Add buttons refresh the cart.</li>
+<li>Confirm garage-facing UI does not show margin.</li>
+<li>Confirm Google Sheet data does not expose anything you do not want users to see.</li>
+</ul>
+<h2 id="recommended-future-improvements">Recommended Future Improvements</h2>
+<h3 id="add-sku-or-variantid">Add SKU Or VariantID</h3>
+<p>This is the most important next improvement.</p>
+<p>Right now, many operations identify products using:</p>
+<p><code>Part + Brand</code></p>
+<p>If the same part and same brand exist at different prices, that can be ambiguous.</p>
+<p>A unique SKU or VariantID will make add, switch, recommendation tracking, and analytics much safer.</p>
+<h3 id="add-admin-view">Add Admin View</h3>
+<p>A simple admin/debug page could show:</p>
+<ul>
+<li>cart bonus parts</li>
+<li>quantity bonus parts</li>
+<li>high discount parts</li>
+<li>stock issues</li>
+<li>missing proxy mappings</li>
+</ul>
+<h3 id="track-recommendation-analytics">Track Recommendation Analytics</h3>
+<p>Useful events:</p>
+<ul>
+<li>recommendation shown</li>
+<li>recommendation added</li>
+<li>brand switched</li>
+<li>target discount achieved</li>
+</ul>
+<p>This will help understand which nudges actually increase cart value.</p>
+<h3 id="improve-bought-together-with-business-rules">Improve Bought Together With Business Rules</h3>
+<p>Order history is useful, but business rules can improve quality.</p>
+<p>Examples:</p>
+<ul>
+<li>Paint workflow bundles</li>
+<li>consumable add-ons</li>
+<li>high-stock preferred products</li>
+<li>margin-safe priority products</li>
+</ul>
+<h2 id="one-line-summary">One-Line Summary</h2>
+<p>Parts Discount Engine is a rules-plus-data recommendation engine that helps sales users build better garage carts by applying safe discounts, showing discount unlocks, recommending commonly bought parts, and guiding users toward target discounts.</p>
+</body>
+</html>

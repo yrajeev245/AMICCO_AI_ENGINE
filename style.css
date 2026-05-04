@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
-
 :root {
   --bg:          #F5F3EE;
   --bg2:         #EDEAE2;
@@ -26,7 +24,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: 'DM Sans', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
@@ -50,7 +48,7 @@ body {
 .logo-mark {
   background: var(--accent);
   color: #fff;
-  font-family: 'DM Mono', monospace;
+  font-family: 'SFMono-Regular', Consolas, monospace;
   font-size: 0.72rem;
   font-weight: 500;
   letter-spacing: 0.1em;
@@ -58,7 +56,7 @@ body {
   border-radius: 6px;
 }
 h1 {
-  font-family: 'Instrument Serif', serif;
+  font-family: Georgia, 'Times New Roman', serif;
   font-size: 1.25rem;
   font-weight: 400;
   line-height: 1.2;
@@ -119,7 +117,7 @@ select, input[type="number"] {
   color: var(--text);
   padding: 6px 9px;
   border-radius: 6px;
-  font-family: 'DM Sans', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 0.81rem;
   outline: none;
   width: 100%;
@@ -157,7 +155,7 @@ select:focus, input[type="number"]:focus {
 .pct-label { font-weight: 600; color: var(--amber); }
 
 /* ── BUTTONS ── */
-button { cursor: pointer; transition: all .15s; font-family: 'DM Sans', sans-serif; }
+button { cursor: pointer; transition: all .15s; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
 
 .btn-add {
   background: var(--surface);
@@ -201,7 +199,7 @@ button { cursor: pointer; transition: all .15s; font-family: 'DM Sans', sans-ser
 }
 .stat-sub { font-size: 0.65rem; color: var(--muted); margin-top: 3px; }
 .stat-value {
-  font-family: 'Instrument Serif', serif;
+  font-family: Georgia, 'Times New Roman', serif;
   font-size: 1.6rem;
   color: var(--text);
   line-height: 1.1;
@@ -246,7 +244,7 @@ button { cursor: pointer; transition: all .15s; font-family: 'DM Sans', sans-ser
   margin-left: 6px;
 }
 .item-total {
-  font-family: 'DM Mono', monospace;
+  font-family: 'SFMono-Regular', Consolas, monospace;
   font-size: 0.88rem;
   font-weight: 500;
 }
@@ -260,7 +258,7 @@ button { cursor: pointer; transition: all .15s; font-family: 'DM Sans', sans-ser
   padding: 3px 7px;
   font-size: 0.71rem;
   color: var(--text2);
-  font-family: 'DM Mono', monospace;
+  font-family: 'SFMono-Regular', Consolas, monospace;
 }
 .meta-pill.discount { background: var(--accent-bg); border-color: #F0C0B5; color: var(--accent); }
 .meta-pill.final    { background: var(--green-bg);  border-color: #B0D9BF; color: var(--green);  }
@@ -324,15 +322,6 @@ button { cursor: pointer; transition: all .15s; font-family: 'DM Sans', sans-ser
   min-width: 0;
   flex: 1 1 auto;
 }
-.suggestion-action-row .add-qty,
-.rec-add-control .add-qty {
-  width: 52px;
-  min-width: 52px;
-  padding: 4px 6px;
-  font-size: 0.72rem;
-  font-family: 'DM Mono', monospace;
-  text-align: center;
-}
 
 /* ── RECOMMENDATION CARDS ── */
 .rec-card {
@@ -351,7 +340,7 @@ button { cursor: pointer; transition: all .15s; font-family: 'DM Sans', sans-ser
 .rec-name { font-weight: 600; font-size: 0.88rem; }
 .rec-scores { display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end; }
 .rec-score {
-  font-family: 'DM Mono', monospace;
+  font-family: 'SFMono-Regular', Consolas, monospace;
   font-size: 0.7rem;
   padding: 2px 7px;
   border-radius: 4px;
@@ -362,63 +351,83 @@ button { cursor: pointer; transition: all .15s; font-family: 'DM Sans', sans-ser
 .rec-score.lift    { background: var(--green-bg); border-color: #B0D9BF; color: var(--green); }
 .rec-score.count   { background: var(--bg2);      border-color: var(--border2); color: var(--text2); }
 
-/* Variant rows with Add button */
+/* Variant rows with Add button — part name left, brand+qty+add right in one line */
 .rec-variants { display: flex; flex-direction: column; gap: 5px; }
 .rec-variant-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(130px, 190px) auto;
+  display: flex;
   align-items: center;
   gap: 8px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 6px;
-  padding: 5px 10px;
+  padding: 6px 10px;
+  flex-wrap: nowrap;
+  overflow: hidden;
 }
 .rec-variant-main {
   min-width: 0;
 }
 .rec-variant-label {
-  font-family: 'DM Mono', monospace;
+  font-family: 'SFMono-Regular', Consolas, monospace;
   font-size: 0.75rem;
   color: var(--text2);
-  padding-right: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
   overflow-wrap: anywhere;
 }
+/* Brand + qty + add all in one flex row on the right — never wraps */
+.rec-inline-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: 0 0 auto;
+}
 .rec-brand-select {
-  width: 100%;
-  min-width: 0;
   border: 1px solid var(--border);
   border-radius: 5px;
   background: #fff;
   color: var(--text);
-  padding: 5px 8px;
-  font-family: 'DM Mono', monospace;
+  padding: 4px 4px;
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  font-size: 0.7rem;
+  width: 120px;
+  max-width: 120px;
+}
+/* Compact qty input — just wide enough for 2 digits */
+.suggestion-action-row .add-qty,
+.rec-add-control .add-qty,
+.rec-inline-controls .add-qty {
+  width: 38px;
+  min-width: 38px;
+  max-width: 38px;
+  padding: 4px 4px;
   font-size: 0.72rem;
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  text-align: center;
 }
 .rec-add-control {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   flex: 0 0 auto;
 }
 .btn-add-reco {
   background: var(--green-bg);
   border: 1px solid #B0D9BF;
   color: var(--green);
-  padding: 3px 10px;
+  padding: 4px 10px;
   border-radius: 5px;
   font-size: 0.72rem;
   font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .btn-add-reco:hover { background: var(--green); color: #fff; border-color: var(--green); }
 
 @media (max-width: 720px) {
-  .rec-variant-row {
-    grid-template-columns: 1fr;
-  }
-  .rec-add-control {
-    justify-content: flex-end;
-  }
+  .rec-variant-row { flex-wrap: wrap; }
+  .rec-inline-controls { flex-wrap: nowrap; }
+  .rec-brand-select { width: 100px; max-width: 100px; }
 }
 
 /* ── EMPTY STATE ── */
@@ -474,7 +483,7 @@ button { cursor: pointer; transition: all .15s; font-family: 'DM Sans', sans-ser
   font-weight: 600;
   cursor: pointer;
   transition: all .15s;
-  font-family: 'DM Sans', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 .btn-switch-brand:hover    { background: var(--blue); color: #fff; border-color: var(--blue); }
 .btn-switch-brand:disabled { opacity: .85; cursor: default; }
@@ -492,4 +501,27 @@ button { cursor: pointer; transition: all .15s; font-family: 'DM Sans', sans-ser
 .sugg-action-row {
   background: rgba(255,255,255,.72) !important;
   border-color: rgba(240,216,160,.9) !important;
+}
+
+/* ── BOUGHT TOGETHER — full-width below both panels ── */
+.bought-together-outer {
+  max-width: 1300px;
+  margin: 0 auto 40px;
+  padding: 0 40px;
+}
+.bought-together-outer .left-recommendations {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+}
+@media (max-width: 900px) {
+  .bought-together-outer { padding: 0 14px; }
+}
+
+/* ── CART ROW WRAPPER ── */
+.row-wrap { display: flex; flex-direction: column; gap: 3px; }
+.cart-qty-warn {
+  font-size: 0.75rem; color: var(--accent); font-weight: 500;
+  padding: 2px 4px;
 }
