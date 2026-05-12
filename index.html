@@ -28,7 +28,7 @@
 
   <div class="app-header">
     <div class="header-left">
-      <div class="logo-mark">PDE</div>
+      <img class="logo-mark logo-image" src="/assets/amicco-logo-tight.png" alt="Amicco">
       <div>
         <h1>Parts Discount Engine</h1>
         <p class="subtitle">Garage Pricing & Deal Optimizer</p>
@@ -45,7 +45,7 @@
     <div class="panel">
       <div class="panel-header">
         <span class="panel-title">🛒 Build Cart</span>
-        <button class="btn-add" onclick="addItem()">+ Add Part</button>
+        <a href="/catalogue.html" class="btn-add">Browse Catalogue</a>
       </div>
       <!-- New rows prepended here -->
       <div id="cart"></div>
@@ -85,7 +85,7 @@
 
       <div id="empty-state" class="empty-state">
         <div class="empty-icon">📋</div>
-        <p>Add parts and click <strong>Get Best Deal</strong> to see pricing</p>
+        <p>Add parts from the <strong>Catalogue</strong> to see pricing</p>
       </div>
     </div>
 
@@ -155,6 +155,12 @@
             origRemove(btn);
             syncCartToSession();
           };
+
+          if (typeof handleCartMutation === "function") {
+            handleCartMutation(true);
+          } else {
+            calculateCart();
+          }
 
         } else if (attempts < 60) {
           setTimeout(() => doFill(attempts + 1), 100);

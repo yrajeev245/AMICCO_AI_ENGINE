@@ -6,6 +6,8 @@ window.data = [];   // raw catalogue — explicit global so catalogue.js can sha
 
 // Persists "added" state across re-renders so buttons stay green
 const _addedToCart = new Set();  // "part|||brand"
+const PDE_CART_STORAGE_KEY = "pde_catalogue_cart";
+let _cartAutoCalcTimer = null;
 
 const getPart  = d => d.Part  || d.part;
 const getBrand = d => d.Brand || d.brand;
@@ -14,6 +16,53 @@ const getBrand = d => d.Brand || d.brand;
 const fmt  = n => Number(n).toLocaleString("en-IN", { maximumFractionDigits: 0 });
 const fmtD = n => Number(n).toFixed(1);
 const getSellingPrice = d => Number(d.SellingPrice || d.selling_price || d.sellingPrice || 0);
+
+function syncCartSessionFromDom() {
+  const cartEl = document.getElementById("cart");
+  if (!cartEl) return;
+
+  const cart = {};
+  getCart().forEach(item => {
+    if (item.qty > 0) cart[`${item.part}|||${item.brand}`] = item.qty;
+  });
+  sessionStorage.setItem(PDE_CART_STORAGE_KEY, JSON.stringify(cart));
+}
+
+function dealIsShowing() {
+  const details = document.getElementById("details-section");
+  return details && details.style.display !== "none";
+}
+
+function resetDealView() {
+  const details = document.getElementById("details-section");
+  const empty = document.getElementById("empty-state");
+  if (details) details.style.display = "none";
+  if (empty) empty.style.display = "block";
+  const summary = document.getElementById("summary-cards");
+  if (summary) summary.innerHTML = "";
+  const recommendations = document.getElementById("recommendations");
+  if (recommendations) {
+    recommendations.innerHTML =
+      `<p class="muted-note">Run Get Best Deal to see frequent bought together parts.</p>`;
+  }
+}
+
+function scheduleCartRecalculate(force=false) {
+  if (!document.getElementById("cart")) return;
+  if (!getCart().length) {
+    if (force) resetDealView();
+    return;
+  }
+  if (!force && !dealIsShowing()) return;
+
+  clearTimeout(_cartAutoCalcTimer);
+  _cartAutoCalcTimer = setTimeout(() => calculateCart(), 250);
+}
+
+function handleCartMutation(force=false) {
+  syncCartSessionFromDom();
+  scheduleCartRecalculate(force);
+}
 
 /**
  * Returns true if a catalogue row is in-stock.
@@ -46,10 +95,15 @@ if (document.getElementById("cart")) {
     // If catalogue prefill data exists, skip the blank row — prefill will handle it
     let hasPrefill = false;
     try {
-      const stored = JSON.parse(sessionStorage.getItem("pde_catalogue_cart") || "null");
+      const stored = JSON.parse(sessionStorage.getItem(PDE_CART_STORAGE_KEY) || "null");
       hasPrefill = stored && Object.keys(stored).length > 0;
     } catch {}
-    if (!hasPrefill) addItem();
+    const cartEl = document.getElementById("cart");
+    cartEl.addEventListener("input", () => handleCartMutation(false));
+    cartEl.addEventListener("change", () => handleCartMutation(false));
+
+    const targetEl = document.getElementById("target-discount");
+    if (targetEl) targetEl.addEventListener("input", () => scheduleCartRecalculate(false));
   });
 }
 
@@ -91,6 +145,12 @@ function addItem(prefillPart=null, prefillBrand=null) {
   cart.insertBefore(wrapper, cart.firstChild);
   populateParts(div, prefillPart, prefillBrand);
   return div;
+}
+
+function addCartItem() {
+  const row = addItem();
+  if (row) handleCartMutation(true);
+  return row;
 }
 
 function populateParts(row, prefillPart=null, prefillBrand=null) {
@@ -156,6 +216,7 @@ function getCart() {
 
 // ─── 3. CALCULATE ──────────────────────────────────────────────────────────
 async function calculateCart() {
+  syncCartSessionFromDom();
   const cart = getCart();
   if (!cart.length) { showError("Add at least one part."); return; }
 
@@ -276,7 +337,7 @@ function reapplyAddedState(container) {
     if (!part || !brand) {
       const row = btn.closest(".rec-variant-row");
       part = row?.dataset.part;
-      brand = row?.querySelector(".rec-brand-select")?.value;
+      brand = row?.querySelector(".rec-brand-button")?.dataset.brand;
     }
     if (!part || !brand) {
       const oc    = btn.getAttribute("onclick") || "";
@@ -313,8 +374,10 @@ function removeCartRow(btn) {
   const row = btn.closest(".row");
   const wrap = row?.closest(".row-wrap") || row;
   wrap?.remove();
+  syncCartSessionFromDom();
   syncAddedStateFromCart();
   refreshAddedButtons();
+  scheduleCartRecalculate(true);
 }
 
 // All catalogue parts with cart-value bonus, sorted best-bonus first
@@ -361,10 +424,9 @@ function renderBonusCatalogueSection(parts, cartTotal) {
           <span class="cart-bonus-hint">${hintText}</span>
         </div>
         <div class="rec-add-control">
-          <input type="number" class="add-qty" value="1" min="1" title="Qty"/>
           <button class="btn-add-reco"
             data-part="${escAttr(part)}" data-brand="${escAttr(brand)}"
-            onclick="addToCartFromSuggestion(this.dataset.part,this.dataset.brand,this.parentElement.querySelector('.add-qty').value,this)">
+            onclick="addToCartFromSuggestion(this.dataset.part,this.dataset.brand,1,this)">
             + Add
           </button>
         </div>
@@ -431,10 +493,9 @@ function renderActionRow(a) {
         <span class="rec-variant-label">${a.part}${a.brand ? ` (${a.brand})` : ""} — ₹${fmt(unit)}</span>
       </div>
       <div class="rec-add-control">
-        <input type="number" class="add-qty" value="1" min="1" title="Qty"/>
         <button class="btn-add-reco"
           data-part="${escAttr(a.part)}" data-brand="${escAttr(a.brand || '')}"
-          onclick="addToCartFromSuggestion(this.dataset.part, this.dataset.brand, this.parentElement.querySelector('.add-qty').value, this)">
+          onclick="addToCartFromSuggestion(this.dataset.part, this.dataset.brand, 1, this)">
           + Add
         </button>
       </div>
@@ -498,15 +559,28 @@ function renderRecommendations(recos) {
 
     const chips = Array.from(groupedProducts.entries()).map(([part, variants]) => {
       variants.sort((a, b) => Number(a.sp || 0) - Number(b.sp || 0));
-      const options = variants.map(v =>
-        `<option value="${escAttr(v.brand)}">${v.brand} — ₹${fmt(v.sp)}</option>`
-      ).join("");
+      const selected = variants[0] || {};
+      const options = variants.map(v => `
+        <button type="button"
+          data-brand="${escAttr(v.brand)}"
+          data-label="${escAttr(`${v.brand} - ₹${fmt(v.sp)}`)}"
+          onclick="chooseRecoBrand(this)">
+          ${v.brand} - ₹${fmt(v.sp)}
+        </button>
+      `).join("");
       return `
         <div class="rec-variant-row" data-part="${escAttr(part)}">
           <span class="rec-variant-label">${part}</span>
           <div class="rec-inline-controls">
-            <select class="rec-brand-select" title="Brand and price" onchange="refreshAddedButtons()">${options}</select>
-            <input type="number" class="add-qty" value="1" min="1" title="Qty"/>
+            <div class="rec-brand-picker">
+              <button type="button"
+                class="rec-brand-button"
+                data-brand="${escAttr(selected.brand || '')}"
+                onclick="toggleRecoBrandMenu(this)">
+                ${selected.brand || ""} - ₹${fmt(selected.sp || 0)}
+              </button>
+              <div class="rec-brand-menu">${options}</div>
+            </div>
             <button class="btn-add-reco" onclick="addGroupedRecoToCart(this)">+ Add</button>
           </div>
         </div>`;
@@ -531,10 +605,37 @@ function addGroupedRecoToCart(btn) {
   const row = btn.closest(".rec-variant-row");
   if (!row) return;
   const part  = row.dataset.part;
-  const brand = row.querySelector(".rec-brand-select")?.value;
-  const qty   = row.querySelector(".add-qty")?.value || 1;
-  addToCartFromReco(part, brand, qty, btn);
+  const brand = row.querySelector(".rec-brand-button")?.dataset.brand;
+  addToCartFromReco(part, brand, 1, btn);
 }
+
+function closeRecoBrandMenus(except=null) {
+  document.querySelectorAll(".rec-brand-picker.is-open").forEach(picker => {
+    if (picker !== except) picker.classList.remove("is-open");
+  });
+}
+
+function toggleRecoBrandMenu(btn) {
+  const picker = btn.closest(".rec-brand-picker");
+  if (!picker) return;
+  const willOpen = !picker.classList.contains("is-open");
+  closeRecoBrandMenus(picker);
+  picker.classList.toggle("is-open", willOpen);
+}
+
+function chooseRecoBrand(optionBtn) {
+  const picker = optionBtn.closest(".rec-brand-picker");
+  const btn = picker?.querySelector(".rec-brand-button");
+  if (!picker || !btn) return;
+  btn.dataset.brand = optionBtn.dataset.brand || "";
+  btn.textContent = optionBtn.dataset.label || optionBtn.textContent.trim();
+  picker.classList.remove("is-open");
+  refreshAddedButtons();
+}
+
+document.addEventListener("click", e => {
+  if (!e.target.closest(".rec-brand-picker")) closeRecoBrandMenus();
+});
 
 // ─── 5. SWITCH BRAND ───────────────────────────────────────────────────────
 /**
@@ -581,6 +682,7 @@ function switchBrandInCart(part, fromBrand, toBrand, btn) {
     btn.style.borderColor= "var(--green)";
   }
 
+  syncCartSessionFromDom();
   calculateCart();
 }
 
@@ -608,6 +710,7 @@ function addOrIncrementCart(part, brand, addQty, btn) {
       flashRow(row);
       document.getElementById("cart").scrollIntoView({ behavior: "smooth", block: "nearest" });
       markBtnAdded(btn);
+      syncCartSessionFromDom();
       calculateCart();
       return;
     }
@@ -618,6 +721,7 @@ function addOrIncrementCart(part, brand, addQty, btn) {
   if (row) row.querySelector(".qty").value = qty;
   document.getElementById("cart").scrollIntoView({ behavior: "smooth", block: "nearest" });
   markBtnAdded(btn);
+  syncCartSessionFromDom();
   calculateCart();
 }
 
@@ -662,7 +766,7 @@ function warnCartQty(input) {
   if (qty > stockN) {
     input.style.borderColor = "var(--accent)";
     input.style.boxShadow   = "0 0 0 3px rgba(200,75,47,.15)";
-    if (warn) { warn.textContent = `⚠️ Only ${Math.round(stockN)} in stock`; warn.style.display = "block"; }
+    if (warn) { warn.textContent = "Stock limit reached"; warn.style.display = "block"; }
   } else {
     input.style.borderColor = "";
     input.style.boxShadow   = "";

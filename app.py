@@ -21,7 +21,7 @@ except ImportError as _e:
     raise ImportError(
         f"Flask import failed: {_e}. Run: pip install flask"
     ) from _e
-import json, urllib.request, os, io, zipfile, re, time
+import json, urllib.request, os, io, zipfile, re, time, ssl
 from collections import defaultdict
 from itertools import combinations
 from datetime import datetime
@@ -46,6 +46,18 @@ CACHE_TTL_SECONDS = 300
 _sheet_cache = {}
 _reco_cache = {}
 
+try:
+    import certifi
+except ImportError:
+    certifi = None
+
+
+def _https_context():
+    """Use certifi's CA bundle when available so Google Sheets SSL verifies."""
+    if certifi:
+        return ssl.create_default_context(cafile=certifi.where())
+    return ssl.create_default_context()
+
 # ───────────────────────────────────────────────────────────────────────────
 # 1. SHEET LOADING
 # ───────────────────────────────────────────────────────────────────────────
@@ -63,7 +75,7 @@ def _fetch(url: str) -> list:
     try:
         import csv as _csv
         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req, timeout=12) as res:
+        with urllib.request.urlopen(req, timeout=12, context=_https_context()) as res:
             raw = res.read().decode("utf-8-sig")   # strip BOM if present
         reader = _csv.DictReader(io.StringIO(raw))
         result = []
@@ -1200,8 +1212,18 @@ def static_files(filename):
     if not os.path.isfile(fp):
         return "Not found", 404
     ext  = filename.rsplit(".", 1)[-1]
-    mime = {"html": "text/html", "css": "text/css", "js": "application/javascript"}.get(ext, "text/plain")
-    with open(fp) as f:
+    mime = {
+        "html": "text/html",
+        "css": "text/css",
+        "js": "application/javascript",
+        "png": "image/png",
+        "jpg": "image/jpeg",
+        "jpeg": "image/jpeg",
+        "webp": "image/webp",
+        "svg": "image/svg+xml",
+    }.get(ext, "text/plain")
+    mode = "rb" if mime.startswith("image/") else "r"
+    with open(fp, mode) as f:
         return f.read(), 200, {"Content-Type": mime}
 
 @app.route("/api/data")

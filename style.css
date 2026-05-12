@@ -1,20 +1,20 @@
 :root {
-  --bg:          #F5F3EE;
-  --bg2:         #EDEAE2;
+  --bg:          #F4F8FC;
+  --bg2:         #E6EFF8;
   --surface:     #FFFFFF;
-  --border:      #DDD9CF;
-  --border2:     #C8C3B5;
-  --text:        #1A1714;
-  --text2:       #5C5750;
-  --muted:       #9C9589;
-  --accent:      #C84B2F;
-  --accent-bg:   #FDF0ED;
-  --green:       #2A7A4B;
-  --green-bg:    #EAF5EE;
+  --border:      #D8E2EC;
+  --border2:     #B8CADC;
+  --text:        #061629;
+  --text2:       #43566C;
+  --muted:       #8B9BAD;
+  --accent:      #1F67A8;
+  --accent-bg:   #E8F2FD;
+  --green:       #15905E;
+  --green-bg:    #E7F7EF;
   --amber:       #B86A00;
   --amber-bg:    #FFF7E6;
-  --blue:        #1A5FAD;
-  --blue-bg:     #EBF2FB;
+  --blue:        #2169A9;
+  --blue-bg:     #E8F2FD;
   --purple:      #5A2D9C;
   --purple-bg:   #F5EDFF;
   --radius:      10px;
@@ -25,7 +25,9 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: var(--bg);
+  background:
+    radial-gradient(circle at top left, rgba(33,105,169,.12), transparent 34rem),
+    var(--bg);
   color: var(--text);
   min-height: 100vh;
   padding-bottom: 60px;
@@ -33,9 +35,9 @@ body {
 
 /* ── HEADER ── */
 .app-header {
-  background: var(--surface);
+  background: rgba(255,255,255,.94);
   border-bottom: 1px solid var(--border);
-  padding: 16px 40px;
+  padding: 12px 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -43,23 +45,26 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
+  backdrop-filter: blur(10px);
 }
 .header-left { display: flex; align-items: center; gap: 14px; }
 .logo-mark {
-  background: var(--accent);
-  color: #fff;
-  font-family: 'SFMono-Regular', Consolas, monospace;
-  font-size: 0.72rem;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  padding: 6px 10px;
-  border-radius: 6px;
+  display: block;
+  width: 120px;
+  height: 44px;
+  object-fit: contain;
+}
+.logo-image {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
 }
 h1 {
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 1.25rem;
-  font-weight: 400;
+  font-weight: 800;
   line-height: 1.2;
+  letter-spacing: 0;
 }
 .subtitle { font-size: 0.73rem; color: var(--muted); margin-top: 1px; }
 
@@ -81,8 +86,8 @@ h1 {
 .panel {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  box-shadow: var(--shadow);
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(6,22,41,.08);
   overflow: hidden;
 }
 .panel-header {
@@ -125,7 +130,7 @@ select, input[type="number"] {
 }
 select:focus, input[type="number"]:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(200,75,47,.1);
+  box-shadow: 0 0 0 3px rgba(33,105,169,.12);
 }
 
 .remove-btn {
@@ -141,23 +146,25 @@ select:focus, input[type="number"]:focus {
 .target-bar {
   padding: 12px 14px 14px;
   border-top: 1px solid var(--border);
-  background: var(--amber-bg);
+  background: linear-gradient(180deg, #F7FBFF, var(--blue-bg));
 }
 .target-bar label {
   font-size: 0.78rem;
   font-weight: 500;
-  color: var(--amber);
+  color: var(--blue);
   display: block;
   margin-bottom: 8px;
 }
 .target-input-row { display: flex; align-items: center; gap: 8px; }
 .target-input-row input { width: 76px; font-weight: 600; text-align: center; }
-.pct-label { font-weight: 600; color: var(--amber); }
+.pct-label { font-weight: 700; color: var(--blue); }
 
 /* ── BUTTONS ── */
 button { cursor: pointer; transition: all .15s; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
 
 .btn-add {
+  display: inline-flex;
+  align-items: center;
   background: var(--surface);
   border: 1px solid var(--border2);
   color: var(--text2);
@@ -165,15 +172,16 @@ button { cursor: pointer; transition: all .15s; font-family: -apple-system, Blin
   border-radius: 7px;
   font-size: 0.81rem;
   font-weight: 500;
+  text-decoration: none;
 }
 .btn-add:hover { background: var(--bg2); border-color: var(--accent); color: var(--accent); }
 
 .btn-primary {
   background: var(--accent); color: #fff; border: none;
-  padding: 9px 20px; border-radius: 8px;
+  padding: 9px 20px; border-radius: 12px;
   font-size: 0.86rem; font-weight: 600; white-space: nowrap;
 }
-.btn-primary:hover    { background: #B03D24; }
+.btn-primary:hover    { background: #18598F; }
 .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
 
 /* ── SUMMARY — 3 cards ── */
@@ -181,6 +189,7 @@ button { cursor: pointer; transition: all .15s; font-family: -apple-system, Blin
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, #FFFFFF, #F7FBFF);
 }
 .stat-card {
   padding: 18px 14px;
@@ -188,7 +197,7 @@ button { cursor: pointer; transition: all .15s; font-family: -apple-system, Blin
   text-align: center;
 }
 .stat-card:last-child { border-right: none; }
-.stat-card.highlight-green { background: var(--green-bg); }
+.stat-card.highlight-green { background: var(--blue-bg); }
 .stat-label {
   font-size: 0.68rem;
   font-weight: 700;
@@ -199,13 +208,14 @@ button { cursor: pointer; transition: all .15s; font-family: -apple-system, Blin
 }
 .stat-sub { font-size: 0.65rem; color: var(--muted); margin-top: 3px; }
 .stat-value {
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 1.6rem;
   color: var(--text);
   line-height: 1.1;
+  font-weight: 850;
 }
-.stat-value.green { color: var(--green); }
-.stat-value.amber { color: var(--amber); }
+.stat-value.green { color: var(--blue); }
+.stat-value.amber { color: var(--blue); }
 
 /* ── SECTION LABELS ── */
 .section-label {
@@ -221,10 +231,11 @@ button { cursor: pointer; transition: all .15s; font-family: -apple-system, Blin
 #details { padding: 0 11px 8px; display: flex; flex-direction: column; gap: 8px; }
 
 .item-card {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border: 1px solid rgba(216,226,236,.95);
+  border-radius: 14px;
   padding: 11px 13px;
-  background: var(--bg);
+  background: #F9FCFF;
+  box-shadow: 0 4px 14px rgba(6,22,41,.04);
 }
 .item-top {
   display: flex;
@@ -234,9 +245,9 @@ button { cursor: pointer; transition: all .15s; font-family: -apple-system, Blin
 }
 .item-name { font-weight: 600; font-size: 0.87rem; }
 .brand-tag {
-  background: var(--surface);
+  background: var(--blue-bg);
   border: 1px solid var(--border);
-  color: var(--text2);
+  color: var(--blue);
   font-size: 0.7rem;
   font-weight: 500;
   padding: 2px 7px;
@@ -260,14 +271,14 @@ button { cursor: pointer; transition: all .15s; font-family: -apple-system, Blin
   color: var(--text2);
   font-family: 'SFMono-Regular', Consolas, monospace;
 }
-.meta-pill.discount { background: var(--accent-bg); border-color: #F0C0B5; color: var(--accent); }
-.meta-pill.final    { background: var(--green-bg);  border-color: #B0D9BF; color: var(--green);  }
-.meta-pill.margin   { background: var(--blue-bg);   border-color: #B0CCE8; color: var(--blue);   }
-.meta-pill.cart-bonus { background: var(--amber-bg); border-color: #F0D8A0; color: var(--amber); }
+.meta-pill.discount { background: var(--blue-bg); border-color: #B8D1EA; color: var(--blue); }
+.meta-pill.final    { background: #EEF7FF;  border-color: #B8D1EA; color: var(--blue);  }
+.meta-pill.margin   { background: var(--blue-bg);   border-color: #B8D1EA; color: var(--blue);   }
+.meta-pill.cart-bonus { background: #F7FBFF; border-color: #B8D1EA; color: var(--blue); }
 
 .error-card {
   background: var(--accent-bg);
-  border: 1px solid #F0C0B5;
+  border: 1px solid #B8D1EA;
   color: var(--accent);
   padding: 9px 12px;
   border-radius: var(--radius);
@@ -289,17 +300,21 @@ button { cursor: pointer; transition: all .15s; font-family: -apple-system, Blin
 }
 
 .suggestion-card {
-  border-radius: var(--radius);
+  border-radius: 14px;
   padding: 10px 13px;
   font-size: 0.82rem;
   line-height: 1.55;
   border: 1px solid;
 }
-.suggestion-card.type-qty    { background: var(--green-bg);  border-color: #B0D9BF; color: #1C5C36; }
-.suggestion-card.type-brand  { background: var(--blue-bg);   border-color: #B0CCE8; color: #14407A; }
-.suggestion-card.type-cart   { background: var(--amber-bg);  border-color: #F0D8A0; color: #8A4E00; }
-.suggestion-card.type-add    { background: var(--amber-bg);  border-color: #F0D8A0; color: #8A4E00; }
-.suggestion-card.type-target { background: var(--purple-bg); border-color: #D4B8F0; color: var(--purple); }
+.suggestion-card.type-qty,
+.suggestion-card.type-brand,
+.suggestion-card.type-cart,
+.suggestion-card.type-add,
+.suggestion-card.type-target {
+  background: #F7FBFF;
+  border-color: #B8D1EA;
+  color: #164B7C;
+}
 .sugg-icon  { margin-right: 5px; }
 .sugg-bold  { font-weight: 700; }
 .suggestion-actions {
@@ -325,10 +340,11 @@ button { cursor: pointer; transition: all .15s; font-family: -apple-system, Blin
 
 /* ── RECOMMENDATION CARDS ── */
 .rec-card {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border: 1px solid rgba(216,226,236,.95);
+  border-radius: 16px;
   padding: 11px 13px;
-  background: var(--bg);
+  background: #F9FCFF;
+  box-shadow: 0 4px 14px rgba(6,22,41,.04);
 }
 .rec-top {
   display: flex;
@@ -348,7 +364,7 @@ button { cursor: pointer; transition: all .15s; font-family: -apple-system, Blin
   cursor: default;
 }
 .rec-score.jaccard { background: var(--blue-bg);  border-color: #B0CCE8; color: var(--blue);  }
-.rec-score.lift    { background: var(--green-bg); border-color: #B0D9BF; color: var(--green); }
+.rec-score.lift    { background: #EEF7FF; border-color: #B8D1EA; color: var(--blue); }
 .rec-score.count   { background: var(--bg2);      border-color: var(--border2); color: var(--text2); }
 
 /* Variant rows with Add button — part name left, brand+qty+add right in one line */
@@ -362,7 +378,7 @@ button { cursor: pointer; transition: all .15s; font-family: -apple-system, Blin
   border-radius: 6px;
   padding: 6px 10px;
   flex-wrap: nowrap;
-  overflow: hidden;
+  overflow: visible;
 }
 .rec-variant-main {
   min-width: 0;
@@ -382,28 +398,70 @@ button { cursor: pointer; transition: all .15s; font-family: -apple-system, Blin
   gap: 4px;
   flex: 0 0 auto;
 }
-.rec-brand-select {
+.rec-brand-picker {
+  position: relative;
+  width: 132px;
+  flex: 0 0 132px;
+}
+.rec-brand-button {
   border: 1px solid var(--border);
   border-radius: 5px;
   background: #fff;
   color: var(--text);
-  padding: 4px 4px;
+  padding: 4px 22px 4px 7px;
   font-family: 'SFMono-Regular', Consolas, monospace;
   font-size: 0.7rem;
-  width: 120px;
-  max-width: 120px;
+  width: 100%;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: relative;
 }
-/* Compact qty input — just wide enough for 2 digits */
-.suggestion-action-row .add-qty,
-.rec-add-control .add-qty,
-.rec-inline-controls .add-qty {
-  width: 38px;
-  min-width: 38px;
-  max-width: 38px;
-  padding: 4px 4px;
-  font-size: 0.72rem;
+.rec-brand-button::after {
+  content: "⌄";
+  position: absolute;
+  right: 7px;
+  top: 50%;
+  transform: translateY(-54%);
+  color: var(--muted);
+}
+.rec-brand-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: max-content;
+  min-width: 100%;
+  max-width: 220px;
+  max-height: 220px;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 7px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.18);
+  padding: 4px;
+  z-index: 300;
+}
+.rec-brand-picker.is-open .rec-brand-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.rec-brand-menu button {
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
+  color: var(--text);
   font-family: 'SFMono-Regular', Consolas, monospace;
-  text-align: center;
+  font-size: 0.7rem;
+  padding: 6px 8px;
+  text-align: left;
+  white-space: nowrap;
+}
+.rec-brand-menu button:hover {
+  background: var(--blue-bg);
+  color: var(--blue);
 }
 .rec-add-control {
   display: inline-flex;
@@ -412,9 +470,9 @@ button { cursor: pointer; transition: all .15s; font-family: -apple-system, Blin
   flex: 0 0 auto;
 }
 .btn-add-reco {
-  background: var(--green-bg);
-  border: 1px solid #B0D9BF;
-  color: var(--green);
+  background: var(--blue);
+  border: 1px solid var(--blue);
+  color: #fff;
   padding: 4px 10px;
   border-radius: 5px;
   font-size: 0.72rem;
@@ -422,12 +480,12 @@ button { cursor: pointer; transition: all .15s; font-family: -apple-system, Blin
   white-space: nowrap;
   flex-shrink: 0;
 }
-.btn-add-reco:hover { background: var(--green); color: #fff; border-color: var(--green); }
+.btn-add-reco:hover { background: #18598F; color: #fff; border-color: #18598F; }
 
 @media (max-width: 720px) {
   .rec-variant-row { flex-wrap: wrap; }
   .rec-inline-controls { flex-wrap: nowrap; }
-  .rec-brand-select { width: 100px; max-width: 100px; }
+  .rec-brand-picker { width: 112px; flex-basis: 112px; }
 }
 
 /* ── EMPTY STATE ── */
@@ -443,7 +501,7 @@ button { cursor: pointer; transition: all .15s; font-family: -apple-system, Blin
 #error-banner {
   display: none;
   background: var(--accent-bg);
-  border-bottom: 1px solid #F0C0B5;
+  border-bottom: 1px solid #B8D1EA;
   color: var(--accent);
   padding: 10px 40px;
   font-size: 0.83rem;
@@ -492,7 +550,7 @@ button { cursor: pointer; transition: all .15s; font-family: -apple-system, Blin
 .cart-bonus-hint {
   display: block;
   font-size: 0.7rem;
-  color: var(--amber);
+  color: var(--blue);
   margin-top: 3px;
   line-height: 1.4;
 }
@@ -500,7 +558,7 @@ button { cursor: pointer; transition: all .15s; font-family: -apple-system, Blin
 /* ── SUGGESTION ACTION ROW (unified with rec-variant-row) ── */
 .sugg-action-row {
   background: rgba(255,255,255,.72) !important;
-  border-color: rgba(240,216,160,.9) !important;
+  border-color: rgba(184,209,234,.9) !important;
 }
 
 /* ── BOUGHT TOGETHER — full-width below both panels ── */
@@ -512,8 +570,8 @@ button { cursor: pointer; transition: all .15s; font-family: -apple-system, Blin
 .bought-together-outer .left-recommendations {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  box-shadow: var(--shadow);
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(6,22,41,.08);
 }
 @media (max-width: 900px) {
   .bought-together-outer { padding: 0 14px; }

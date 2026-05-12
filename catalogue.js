@@ -143,9 +143,6 @@ function filterCatalogue(changedField) {
 
   sortRows();
   renderGrid();
-
-  const label = document.getElementById("cat-count-label");
-  if (label) label.textContent = `${_filteredRows.length} of ${data.length} parts`;
 }
 
 function clearFilters() {
@@ -204,7 +201,6 @@ function renderGrid() {
     const sp      = getSellingPrice(d);
     const minD    = Number(d.MinDiscount || d.min_discount || 0);
     const stock   = stockLabel(d);
-    const proxy   = _proxyMap[part] || null;
     const mrp     = computeMRP(sp, minD);
     const key     = `${part}|||${brand}`;
     const cartQty = cart[key] || 0;
@@ -215,34 +211,21 @@ function renderGrid() {
       : "";
 
     const mrpLine = mrp
-      ? `<span class="cc-mrp">₹${fmt(mrp)}</span>`
+      ? `<span class="cc-mrp">MRP:₹${fmt(mrp)}</span>`
       : "";
 
     const stockDot = stock.ok
-      ? `<span class="cc-stock-dot ok"></span><span class="cc-stock-label">${stock.count ? `${Math.round(stock.count)} in stock` : "In Stock"}</span>`
+      ? `<span class="cc-stock-dot ok"></span><span class="cc-stock-label">In Stock</span>`
       : `<span class="cc-stock-dot out"></span><span class="cc-stock-label out">Out of Stock</span>`;
-
-    const proxyTag = proxy
-      ? `<span class="cc-proxy-tag">${proxy}</span>`
-      : "";
 
     const stockCount = stock.count !== null ? stock.count : null;
     const escKey     = escAttr(key);
-    const cssKey     = CSS.escape(key);
     const maxAttr    = stockCount !== null ? `data-max="${stockCount}"` : "";
 
-    // ── PRICE ROW: always show qty input (only visible when NOT added) ──
     const priceRow = `
       <div class="cc-price-row">
         <span class="cc-price">₹${fmt(sp)}</span>
         ${mrpLine}
-        ${!added && stock.ok
-          ? `<span class="cc-qty-label">Qty:</span>
-             <input type="number" class="qty-input cc-qty" value="1" min="1"
-                    ${stockCount !== null ? `max="${stockCount}"` : ""}
-                    id="qty-${escKey}"
-                    oninput="checkQtyWarning(this, ${stockCount !== null ? stockCount : 'null'})"/>`
-          : ""}
       </div>`;
 
     // ── FOOTER RIGHT: stepper if already in cart, else Add button ──
@@ -255,6 +238,7 @@ function renderGrid() {
       : `<button class="btn-add-to-cart2"
                data-key="${escKey}"
                data-brand="${escAttr(brand)}"
+               ${maxAttr}
                onclick="handleAddToCart(this)"
                ${!stock.ok ? "disabled title='Out of stock'" : ""}>
            + Add
@@ -265,12 +249,8 @@ function renderGrid() {
         <div class="cc-body">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
             <div class="cc-stock-row">${stockDot}</div>
-            ${stock.ok
-              ? `<div class="cc-instock-badge">In Stock</div>`
-              : `<div class="cc-instock-badge out">Out of Stock</div>`}
           </div>
           <div class="cc-name">${part}</div>
-          ${proxyTag}
 
           ${priceRow}
 
@@ -286,23 +266,6 @@ function renderGrid() {
   }).join("");
 }
 
-// Inline qty warning for catalogue page (before adding)
-function checkQtyWarning(input, stockCount) {
-  if (stockCount === null || stockCount === undefined) return;
-  const key  = input.id.replace(/^qty-/, "");
-  const warn = document.getElementById(`warn-${key}`);
-  if (!warn) return;
-  const qty = parseInt(input.value, 10) || 0;
-  if (qty > stockCount) {
-    input.style.borderColor = "var(--accent)";
-    warn.textContent = `⚠️ Only ${Math.round(stockCount)} in stock`;
-    warn.style.display = "block";
-  } else {
-    input.style.borderColor = "";
-    warn.style.display = "none";
-  }
-}
-
 // ─── ADD TO CART ─────────────────────────────────────────────────────────────
 function handleAddToCart(btn) {
   const decode = s => { const t = document.createElement("textarea"); t.innerHTML = s; return t.value; };
@@ -311,20 +274,15 @@ function handleAddToCart(btn) {
   const [part]  = rawKey.split("|||");
   const brand   = rawBrand;
 
-  const qtyEl   = document.getElementById(`qty-${btn.dataset.key}`);
-  const qty     = Math.max(1, parseInt(qtyEl?.value || "1", 10));
-
-  // Stock check
-  const maxVal = qtyEl?.getAttribute("max");
-  if (maxVal !== null && maxVal !== "" && qty > parseInt(maxVal, 10)) {
-    if (qtyEl) qtyEl.style.borderColor = "var(--accent)";
+  const qty = 1;
+  const maxVal = btn.dataset.max || "";
+  const prev = getSessionQty(part, brand);
+  if (maxVal && prev + qty > parseInt(maxVal, 10)) {
     const warn = document.getElementById(`warn-${btn.dataset.key}`);
-    if (warn) { warn.textContent = `⚠️ Only ${maxVal} in stock`; warn.style.display = "block"; }
+    if (warn) { warn.textContent = "Stock limit reached"; warn.style.display = "block"; }
     return;
   }
 
-  // Persist
-  const prev   = getSessionQty(part, brand);
   const newQty = prev + qty;
   setItemInSession(part, brand, newQty);
 
@@ -348,13 +306,8 @@ function handleAddToCart(btn) {
       </div>`;
   }
 
-  // Remove qty input from price row
-  const priceRow = card?.querySelector(".cc-price-row");
-  if (priceRow) {
-    const priceSpan = priceRow.querySelector(".cc-price")?.outerHTML || "";
-    const mrpSpan   = priceRow.querySelector(".cc-mrp")?.outerHTML || "";
-    priceRow.innerHTML = priceSpan + mrpSpan;
-  }
+  const warn = card?.querySelector(".cc-qty-warn");
+  if (warn) warn.style.display = "none";
 }
 
 // ─── ADJUST QTY (stepper) ────────────────────────────────────────────────────
@@ -372,10 +325,9 @@ function adjustCatalogueQty(btn) {
   if (delta > 0) {
     const maxStock = btn.dataset.max ? parseInt(btn.dataset.max, 10) : Infinity;
     if (newQty > maxStock) {
-      // Show warning on the card
       const card = btn.closest(".cat-card2");
       const warn = card?.querySelector(".cc-qty-warn");
-      if (warn) { warn.textContent = `⚠️ Only ${maxStock} in stock`; warn.style.display = "block"; }
+      if (warn) { warn.textContent = "Stock limit reached"; warn.style.display = "block"; }
       return;
     }
   }
